@@ -141,7 +141,10 @@ export default function App() {
   };
 
   const downloadBlob = (data: Uint8Array, fileName: string) => {
-    const blob = new Blob([data], { type: "application/pdf" });
+    // Forçamos o TypeScript a entender que isso é um ArrayBuffer limpo
+    const blob = new Blob([data.buffer as ArrayBuffer], {
+      type: "application/pdf",
+    });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -279,13 +282,20 @@ export default function App() {
                     backgroundColor: "rgba(239, 68, 68, 0.15)",
                     zIndex: 10,
                   }}
-                  onDragStop={(_, d) => {
+                  // Tipagens explícitas injetadas aqui
+                  onDragStop={(_e: any, d: { x: number; y: number }) => {
                     const newMolds = [...molds];
                     newMolds[index].x = d.x;
                     newMolds[index].y = d.y;
                     setMolds(newMolds);
                   }}
-                  onResizeStop={(_e, _dir, ref, _delta, pos) => {
+                  onResizeStop={(
+                    _e: any,
+                    _dir: any,
+                    ref: HTMLElement,
+                    _delta: any,
+                    pos: { x: number; y: number },
+                  ) => {
                     const newMolds = [...molds];
                     newMolds[index].width = parseInt(ref.style.width, 10);
                     newMolds[index].height = parseInt(ref.style.height, 10);
@@ -293,11 +303,11 @@ export default function App() {
                     newMolds[index].y = pos.y;
                     setMolds(newMolds);
                   }}
-                  onContextMenu={(e) => {
+                  onContextMenu={(e: React.MouseEvent) => {
                     e.preventDefault();
                     toggleOrientation(index);
                   }}
-                  onWheel={(e) => handleWheelResize(e, index)}
+                  onWheel={(e: React.WheelEvent) => handleWheelResize(e, index)}
                 />
               ))}
           </div>
